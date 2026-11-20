@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Department of Birthdays — Official Portal</title>
+<style>
+:root{color-scheme:light;--navy:#1b365d;--navy2:#274b7d;--gold:#c9a227;--paper:#f3efe4;--ink:#22262e;--muted:#5d6675;--line:#d5d0c2;--ok:#1f7a4d;--bad:#a8322d}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.5;overflow-x:hidden}
+.topbar{background:#e6e1d2;color:#444b57;font-size:12px;padding:5px 16px;text-align:center}
+header{background:var(--navy);color:#fff;border-bottom:5px solid var(--gold);padding:14px 16px}
+.head{max-width:680px;margin:auto;display:flex;align-items:center;gap:14px}
+.crest{width:56px;height:56px;flex:none;border-radius:50%;background:#fff;border:3px solid var(--gold);display:grid;place-items:center;font-size:28px}
+.dept{font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,5vw,27px);font-weight:700;letter-spacing:.02em;line-height:1.15}
+.sub{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d8e0ee;margin-top:3px}
+main{max-width:680px;margin:auto;padding:16px}
+.steps{display:flex;gap:6px;margin:4px 0 14px;padding:0;list-style:none}
+.steps li{flex:1;font-size:11px;text-align:center;color:var(--muted);border-top:5px solid var(--line);padding-top:6px;font-weight:600}
+.steps li.done{border-color:var(--ok);color:var(--ok)}
+.steps li.now{border-color:var(--navy);color:var(--navy)}
+.card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:22px 20px;box-shadow:0 2px 0 #0000000d;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-family:Georgia,serif;font-size:clamp(21px,5vw,27px);margin:0 0 6px;color:var(--navy);line-height:1.2}
+h2{font-family:Georgia,serif;font-size:19px;margin:18px 0 6px;color:var(--navy)}
+p{margin:8px 0}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 4px}
+.muted{color:var(--muted);font-size:14px}
+.fine{font-size:11.5px;color:var(--muted);text-align:center;margin:18px 0 30px}
+table.file{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+table.file td{border:1px solid var(--line);padding:8px 10px}
+table.file td:first-child{background:#f7f4ec;font-weight:600;width:42%}
+.pending{color:#9a6a00;font-weight:700}
+button{font:inherit;font-weight:700;border-radius:4px;border:2px solid var(--navy);background:var(--navy);color:#fff;padding:12px 18px;min-height:48px;cursor:pointer;touch-action:manipulation}
+button:hover{background:var(--navy2)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button.alt{background:#fff;color:var(--navy)}
+button.alt:hover{background:#eef2f8}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.notice{border-left:5px solid var(--gold);background:#fbf6e3;padding:10px 12px;margin:14px 0;font-size:15px;min-height:44px}
+.notice.bad{border-color:var(--bad);background:#fbecea}
+.notice.ok{border-color:var(--ok);background:#e9f5ee}
+/* age */
+.agebox{text-align:center;margin:14px 0 4px}
+.agenum{font-family:Georgia,serif;font-size:76px;font-weight:700;color:var(--navy);line-height:1}
+.agetag{min-height:24px;font-style:italic;color:var(--muted)}
+input[type=range]{width:100%;height:44px;accent-color:var(--navy);margin:8px 0}
+/* captcha */
+.cap{border:1px solid var(--line);border-radius:4px;overflow:hidden;max-width:360px;margin:14px auto}
+.caphead{background:var(--navy2);color:#fff;padding:14px}
+.caphead small{display:block;opacity:.85}
+.caphead b{font-size:21px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:#fff}
+.tile{aspect-ratio:1;font-size:clamp(38px,12vw,52px);background:#eef1f5;border:0;border-radius:0;color:inherit;padding:0;min-height:0;transition:transform .12s,opacity .25s}
+.tile:hover{background:#e2e7ee}
+.tile.sel{outline:5px solid var(--navy);outline-offset:-5px;transform:scale(.9)}
+.tile.swap{opacity:0}
+.capfoot{display:flex;justify-content:space-between;align-items:center;padding:8px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.robot{display:flex;align-items:center;gap:14px;border:1px solid var(--line);background:#f8f8f8;border-radius:4px;padding:16px;max-width:360px;margin:14px auto;font-size:17px}
+.robot .box{width:34px;height:34px;flex:none;border:2px solid #7c8594;border-radius:3px;background:#fff;padding:0;min-height:0;color:var(--ok);font-size:22px;line-height:1}
+.spin{width:30px;height:30px;border:4px solid #cfd6e0;border-top-color:var(--navy);border-radius:50%;animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* cookies */
+.sky{position:relative;height:350px;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:linear-gradient(#eef4fb,#fff);margin-top:12px;touch-action:none;user-select:none;-webkit-user-select:none}
+.drop{position:absolute;top:0;left:0;width:56px;height:56px;font-size:42px;line-height:56px;text-align:center;cursor:pointer;will-change:transform}
+.crumb{position:absolute;font-size:13px;font-weight:700;color:var(--ok);pointer-events:none;animation:up .7s ease-out forwards}
+@keyframes up{to{transform:translateY(-34px);opacity:0}}
+.banner{position:absolute;left:10px;right:10px;bottom:10px;background:#fff;border:2px solid var(--navy);border-radius:4px;padding:14px;box-shadow:0 6px 18px #0003}
+.count{font-weight:700;font-size:17px}
+.prefs label{display:block;margin:6px 0}
+/* terms */
+.terms{height:230px;overflow-y:auto;border:1px solid var(--line);background:#fbfaf6;padding:12px 16px;font-family:Georgia,serif;font-size:15px;border-radius:4px}
+.terms ol{padding-left:22px;margin:6px 0}
+.terms li{margin:9px 0}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:16px}
+.check input{width:24px;height:24px;flex:none;margin-top:1px;accent-color:var(--navy)}
+.dodge{position:relative;height:126px;margin-top:12px}
+.dodge button{position:absolute;left:0;top:0;transition:transform .22s cubic-bezier(.3,1.4,.5,1)}
+/* processing */
+.bar{height:30px;background:#e6e9ee;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:16px 0 6px}
+.bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(45deg,var(--navy) 0 14px,var(--navy2) 14px 28px)}
+.pct{font-weight:700;font-size:20px}
+.pump{text-align:center;margin-top:10px}
+.balloonwrap{height:190px;display:grid;place-items:end center;overflow:hidden}
+.balloon{font-size:44px;line-height:1.15;transform-origin:50% 100%;transition:transform .12s}
+/* approved */
+.licence{position:relative;border:3px double var(--navy);padding:92px 18px 20px;text-align:center;background:#fffdf6;overflow:hidden}
+.licence .name{font-family:Georgia,serif;font-size:clamp(34px,10vw,52px);font-weight:700;color:var(--navy);margin:6px 0;line-height:1.1}
+.licence ul{list-style:none;padding:0;margin:12px auto;max-width:400px;text-align:left;font-size:15px}
+.licence li{padding:5px 0;border-bottom:1px dotted var(--line)}
+.stamp{position:absolute;right:8px;top:14px;border:5px solid var(--bad);color:var(--bad);font-weight:900;font-size:clamp(15px,4.4vw,21px);letter-spacing:.08em;padding:6px 10px;border-radius:6px;transform:rotate(-11deg);opacity:.9;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .35s both;background:#fffdf6cc}
+@keyframes stamp{from{transform:rotate(-11deg) scale(4);opacity:0}to{transform:rotate(-11deg) scale(1);opacity:.9}}
+.msg{background:#fdf3f8;border:1px solid #ecc7da;border-radius:6px;padding:18px;margin-top:16px;text-align:center;font-size:17px}
+.msg b{font-size:22px;font-family:Georgia,serif;color:#8a2b5c}
+.sig{margin-top:10px;font-weight:700;color:#8a2b5c}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
+@media print{.topbar,header,.steps,.row,.fine,#confetti{display:none}body{background:#fff}.card{border:0;box-shadow:none}}
+@media (prefers-reduced-motion:reduce){.card,.stamp{animation:none}}
+</style>
+</head>
+<body>
+<div class="topbar">An official website of the Department of Birthdays. Here's how you know: we said so.</div>
+<header><div class="head"><div class="crest" aria-hidden="true">🎂</div><div><div class="dept">Department of Birthdays</div><div class="sub">Bureau of Cake, Candles &amp; Compliance</div></div></div></header>
+<main>
+  <ol id="steps" class="steps" hidden></ol>
+  <section id="stage" class="card" aria-live="polite"></section>
+  <p class="fine">Form BD-1 · Processing times vary between 3 minutes and 6–8 business weeks · Do not fold, bend or eat this form.</p>
+</main>
+<canvas id="confetti"></canvas>
+<script>
+(()=>{'use strict';
+const NAME='Logan', FROM='Niña and Ariana';
+const stage=document.getElementById('stage'), stepsEl=document.getElementById('steps');
+const $=s=>stage.querySelector(s);
+const LABELS=['Age','Robot check','Cookies','Terms','Processing'];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+let timers=[], raf=0, declaredAge=0;
+
+function later(fn,ms){const t=setTimeout(fn,ms);timers.push(t);return t}
+function every(fn,ms){const t=setInterval(fn,ms);timers.push(t);return t}
+function cleanup(){timers.forEach(t=>{clearTimeout(t);clearInterval(t)});timers=[];cancelAnimationFrame(raf)}
+
+let ac=null;
+function tone(f,d=.12,type='sine',v=.05){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+
+/* Chiptune "Happy Birthday" (square-wave lead, triangle bass) */
+let songNodes=[];
+function stopSong(){songNodes.forEach(o=>{try{o.stop()}catch(e){}});songNodes=[]}
+function chip(f,t,d,type,v){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.012);g.gain.setValueAtTime(v,t+d*.72);g.gain.linearRampToValueAtTime(.0001,t+d*.96);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);songNodes.push(o)}
+function song(){try{
+  ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();stopSong();
+  const N={G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99};
+  const mel=[['G4',.75],['G4',.25],['A4',1],['G4',1],['C5',1],['B4',2],['G4',.75],['G4',.25],['A4',1],['G4',1],['D5',1],['C5',2],['G4',.75],['G4',.25],['G5',1],['E5',1],['C5',1],['B4',1],['A4',1],['F5',.75],['F5',.25],['E5',1],['C5',1],['D5',1],['C5',3]];
+  const B=.42,t0=ac.currentTime+.08;let t=t0;
+  mel.forEach(([n,d])=>{chip(N[n],t,d*B,'square',.045);chip(N[n]*2,t,Math.min(d*B,.09),'square',.012);t+=d*B});
+  const bass=[130.81,196,196,130.81,130.81,174.61,130.81,130.81];
+  bass.forEach((f,i)=>{const s=t0+(1+i*3)*B;chip(f,s,(i===6?1.9:2.8)*B,'triangle',.09);if(i===6)chip(196,s+2*B,.9*B,'triangle',.09)});
+}catch(e){}}
+
+function setStep(n){
+  if(n<0){stepsEl.hidden=true;return}
+  stepsEl.hidden=false;
+  stepsEl.innerHTML=LABELS.map((l,i)=>`<li class="${i<n?'done':i===n?'now':''}">${i<n?'✓ ':''}${l}</li>`).join('');
+}
+function render(html){
+  cleanup();stage.innerHTML=html;
+  stage.style.animation='none';void stage.offsetWidth;stage.style.animation='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function note(text,kind=''){const n=$('#note');if(n){n.className='notice '+kind;n.textContent=text}}
+
+/* ---------- Intro ---------- */
+function intro(){
+  setStep(-1);
+  const ref='BD-'+new Date().getFullYear()+'-000001';
+  render(`<p class="kicker">Notice of pending birthday</p>
+  <h1>${NAME}, your birthday has been detected but not yet approved.</h1>
+  <p>Our systems noticed a birthday occurring at your location without the required paperwork. To avoid delays to cake, please complete verification today.</p>
+  <table class="file"><tr><td>Applicant</td><td>${NAME}</td></tr><tr><td>Reference</td><td>${ref}</td></tr><tr><td>Status</td><td class="pending">● PENDING APPROVAL</td></tr><tr><td>Queue position</td><td>1 of 1 (please be patient)</td></tr></table>
+  <p class="muted">Verification has 5 short steps. Failure to complete them may result in an unlicensed birthday.</p>
+  <div class="row"><button id="go">Begin verification →</button></div>`);
+  $('#go').onclick=()=>{tone(520);stepAge()};
+}
+
+/* ---------- Step 1: age ---------- */
+function ageTag(a){
+  if(a<1)return 'Newborn. Impressive typing.';
+  if(a<13)return 'Child. Please fetch a responsible adult.';
+  if(a<20)return 'Teenager. Eye-roll detected.';
+  if(a<30)return 'Knees still under warranty.';
+  if(a<40)return 'Knee warranty recently expired.';
+  if(a<50)return 'Makes a small noise when sitting down.';
+  if(a<70)return 'Classic edition. Increasing in value.';
+  if(a<100)return 'Holds firm opinions about the thermostat.';
+  return 'Legend. Please accept our respect and a chair.';
+}
+function stepAge(){
+  setStep(0);let age=0,slips=0,aged=0;
+  render(`<p class="kicker">Step 1 of 5</p><h1>Confirm your age</h1>
+  <p>Please declare your age using the approved Age Selection Device. Typing is not permitted for security reasons.</p>
+  <div class="agebox"><div class="agenum" id="num">0</div><div class="agetag" id="tag"></div></div>
+  <input id="sl" type="range" min="0" max="120" value="0" aria-label="Age">
+  <div class="row" style="justify-content:center;margin-top:4px"><button class="alt" id="minus">− Younger</button><button class="alt" id="plus">Older +</button></div>
+  <div class="notice" id="note">Drag the slider to your age.</div>
+  <div class="row"><button id="ok">Confirm age</button></div>`);
+  const sl=$('#sl');
+  const show=()=>{age=Math.max(0,Math.min(120,age));sl.value=age;$('#num').textContent=age;$('#tag').textContent=ageTag(age)};
+  show();
+  sl.oninput=()=>{age=+sl.value;show()};
+  sl.onchange=()=>{
+    if(slips<2){slips++;const d=(Math.random()<.5?-1:1)*(4+Math.floor(Math.random()*6));
+      later(()=>{age+=d;show();tone(180,.15,'sawtooth');note(slips===1?'The slider slipped. Please age more carefully.':'It slipped again. The device was last serviced never. Use the buttons to fine-tune.','bad')},260)}
+  };
+  $('#minus').onclick=()=>{age--;show();tone(400,.05)};
+  $('#plus').onclick=()=>{age++;show();tone(460,.05)};
+  every(()=>{if(aged<2&&age>0){aged++;age++;show();note('A moment has passed while you were deciding. You are now slightly older.')}},9000);
+  $('#ok').onclick=()=>{
+    if(age<1){note('Newborns are not permitted to operate this form. Please select an age.','bad');return}
+    const flat=Math.max(1,age-7);
+    render(`<p class="kicker">Step 1 of 5</p><h1>Age discrepancy found</h1>
+    <p>You declared <b>${age}</b>. However, our assessors reviewed your file and concluded you do not look a day over <b>${flat}</b>.</p>
+    <p>Which number shall we enter in the permanent record?</p>
+    <div class="row"><button id="a">Record ${age} (honest)</button><button class="alt" id="b">Record ${flat} (flattering)</button></div>
+    <div class="notice" id="note">Both options are legally binding.</div>`);
+    const done=(v,t)=>{declaredAge=v;tone(660);render(`<p class="kicker">Step 1 of 5</p><h1>Age recorded: ${v}</h1><div class="notice ok">${t}</div><p class="muted">Please note this number increased by 1 today. The Department accepts no responsibility.</p><div class="row"><button id="n">Continue →</button></div>`);$('#n').onclick=stepRobot};
+    $('#a').onclick=()=>done(age,'Honesty noted. A commendation has been added to your file.');
+    $('#b').onclick=()=>done(flat,'Flattery accepted. Nobody needs to know.');
+  };
+}
+
+/* ---------- Step 2: robot check ---------- */
+function captcha(title,sub,tiles,foot){
+  return `<div class="cap"><div class="caphead"><small>${sub}</small><b>${title}</b></div><div class="grid">${tiles.map((t,i)=>`<button class="tile" data-i="${i}" aria-pressed="false">${t}</button>`).join('')}</div><div class="capfoot"><span>${foot}</span><button id="verify">Verify</button></div></div>`;
+}
+function stepRobot(){
+  setStep(1);
+  render(`<p class="kicker">Step 2 of 5</p><h1>Prove you are not a robot</h1>
+  <p>Robots are not eligible for birthdays (they have "release dates").</p>
+  ${captcha('cake','Select all squares containing',['🎂','🧀','🍰','🧽','🧁','🕯️','🥞','🍮','🧱'],'Test 1 of 3')}
+  <div class="notice" id="note">Tap the squares, then press Verify.</div>`);
+  stage.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{t.classList.toggle('sel');t.setAttribute('aria-pressed',t.classList.contains('sel'));tone(500,.04)});
+  $('#verify').onclick=()=>{
+    if(!stage.querySelector('.tile.sel')){note('Please select at least one square. Any square. We believe in you.','bad');return}
+    tone(170,.2,'sawtooth');robot2();
+  };
+}
+function robot2(){
+  const pool=['🎈','🎁','📅','🦆','🧦','🎉','🪑','🥳','🕯️','🧃','🪩','🐌','🎂','🧻','🪅','🌵'];
+  let swaps=0;
+  render(`<p class="kicker">Step 2 of 5</p><h1>Prove you are not a robot</h1>
+  <div class="notice bad">Incorrect. The cheese wheel was a cheesecake in progress, and a sponge is technically a cake. Let's try something easier.</div>
+  ${captcha('a birthday','Select all squares containing',pool.slice(0,9),'Test 2 of 3')}
+  <div class="notice" id="note">Keep selecting until no birthdays remain.</div>`);
+  stage.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{
+    if(t.classList.contains('swap'))return;
+    swaps++;tone(500,.04);t.classList.add('swap');
+    later(()=>{t.textContent=pick(pool);t.classList.remove('swap')},260);
+    if(swaps===4)note('New squares keep arriving. This is normal. Probably.');
+    if(swaps===9)note('You can press Verify whenever you lose hope.');
+  });
+  $('#verify').onclick=()=>{tone(170,.2,'sawtooth');robot3()};
+}
+function robot3(){
+  render(`<p class="kicker">Step 2 of 5</p><h1>Prove you are not a robot</h1>
+  <div class="notice bad">Inconclusive. Our systems cannot work out where a birthday is located either. Final test.</div>
+  <div class="robot"><button class="box" id="box" aria-label="I am not a robot"></button><span id="rl">I am not a robot</span></div>
+  <div id="follow"></div>`);
+  $('#box').onclick=()=>{
+    const b=$('#box');b.outerHTML='<div class="spin" id="sp"></div>';$('#rl').textContent='Checking for robot behaviour…';tone(440,.06);
+    later(()=>{
+      $('#sp').outerHTML='<div class="box" style="display:grid;place-items:center;border:2px solid #7c8594;border-radius:3px">❓</div>';
+      $('#rl').textContent='One follow-up question.';
+      $('#follow').innerHTML=`<h2 style="text-align:center">Are you a cake?</h2><div class="row" style="justify-content:center"><button id="y">Yes</button><button class="alt" id="no">No</button></div>`;
+      const end=t=>{tone(700);render(`<p class="kicker">Step 2 of 5</p><h1>Humanity provisionally confirmed</h1><div class="notice ok">${t}</div><div class="row"><button id="n">Continue →</button></div>`);$('#n').onclick=stepCookies};
+      $('#y').onclick=()=>end('Suspicious, but cakes are welcome at birthdays. You may proceed.');
+      $('#no').onclick=()=>end('That is exactly what a cake would say. However, a robot would have said "beep". You may proceed.');
+    },1500);
+  };
+}
+
+/* ---------- Step 3: cookies ---------- */
+function stepCookies(){
+  setStep(2);const NEED=12;let eaten=0,running=false,drops=[],last=0,spawnT=0;
+  render(`<p class="kicker">Step 3 of 5</p><h1>Cookie consent</h1>
+  <p class="count" id="count">Cookies accepted: 0 / ${NEED}</p>
+  <div class="sky" id="sky"><div class="banner" id="banner"><b>This website uses cookies.</b><p class="muted" style="margin:4px 0 0">We use cookies to improve your birthday experience. Mostly chocolate chip.</p><div class="row" style="margin-top:10px"><button id="acc">Accept all cookies</button><button class="alt" id="man">Manage preferences</button></div></div></div>
+  <div class="notice" id="note">Please respond to the cookie notice.</div>`);
+  const sky=$('#sky');
+  $('#man').onclick=()=>{
+    $('#banner').innerHTML=`<b>Cookie preferences</b><div class="prefs"><label><input type="checkbox" checked disabled> Chocolate chip (required)</label><label><input type="checkbox" checked disabled> Oatmeal raisin (required, sorry)</label><label><input type="checkbox" checked disabled> Fortune (may contain unsolicited advice)</label></div><div class="row" style="margin-top:8px"><button id="acc">Save preferences</button></div>`;
+    note('Your preferences have been carefully ignored.');$('#acc').onclick=start;
+  };
+  $('#acc').onclick=start;
+  function start(){
+    $('#banner').remove();running=true;tone(600);
+    note('You accepted all cookies. You must now accept them personally. Tap each cookie to eat it.');
+    last=performance.now();raf=requestAnimationFrame(loop);
+  }
+  function spawn(){
+    const veg=Math.random()<.16,el=document.createElement('div');
+    el.className='drop';el.textContent=veg?'🥦':'🍪';
+    const d={el,veg,x:Math.random()*(sky.clientWidth-56),y:-60,v:70+Math.random()*70,r:Math.random()*360,vr:(Math.random()-.5)*120};
+    el.addEventListener('pointerdown',e=>{e.preventDefault();eat(d)});
+    sky.appendChild(el);drops.push(d);
+  }
+  function eat(d){
+    if(d.gone)return;d.gone=true;d.el.remove();
+    const c=document.createElement('div');c.className='crumb';c.style.left=Math.max(0,d.x)+'px';c.style.top=Math.max(0,d.y)+'px';
+    if(d.veg){c.textContent='broccoli!';c.style.color='#a8322d';tone(150,.2,'square');note('That was broccoli. It does not count, but your file now says "health conscious".','bad')}
+    else{eaten++;c.textContent='nom +1';tone(500+eaten*30,.07,'triangle');$('#count').textContent=`Cookies accepted: ${eaten} / ${NEED}`;
+      if(eaten===4)note('Excellent consent. Keep going.');
+      if(eaten===9)note('Nearly there. This is the most thorough cookie acceptance on record.')}
+    sky.appendChild(c);setTimeout(()=>c.remove(),700);
+    if(eaten>=NEED)finish();
+  }
+  function loop(t){
+    const dt=Math.min((t-last)/1000,.05);last=t;spawnT-=dt;
+    if(spawnT<=0){spawn();spawnT=.42+Math.random()*.3}
+    const h=sky.clientHeight;
+    drops=drops.filter(d=>{if(d.gone)return false;d.y+=d.v*dt;d.r+=d.vr*dt;if(d.y>h+10){d.el.remove();return false}d.el.style.transform=`translate(${d.x}px,${d.y}px) rotate(${d.r}deg)`;return true});
+    if(running)raf=requestAnimationFrame(loop);
+  }
+  function finish(){
+    running=false;cancelAnimationFrame(raf);drops.forEach(d=>d.el.remove());drops=[];tone(760,.2);
+    later(()=>{render(`<p class="kicker">Step 3 of 5</p><h1>All cookies accepted</h1><div class="notice ok">Thank you. ${NEED} cookies were accepted in full. Crumbs have been logged for audit purposes.</div><div class="row"><button id="n">Continue →</button></div>`);$('#n').onclick=stepTerms},500);
+  }
+}
+
+/* ---------- Step 4: terms ---------- */
+function stepTerms(){
+  setStep(3);let dodges=0,ignoreUntil=0;
+  const clauses=[
+   'The Birthday Person ("you") agrees to act surprised, including when not surprised.',
+   'Calories consumed on the Day of Birth are void and will not be carried forward.',
+   'You are entitled to one (1) wish. Wishing for more wishes will be referred to the Department of Loopholes.',
+   'Telling anyone the wish cancels the wish. This is not our rule. It is just how it works.',
+   'During the birthday song you must remain present, smile, and have no idea where to look.',
+   'Your new age is issued "as is". No refunds, exchanges or rollbacks to a previous version.',
+   'Candles exceeding the local fire code require a separate permit and a larger cake.',
+   'On receiving a gift you agree to say "you shouldn\'t have" while being glad that they did.',
+   'The Department accepts no liability for balloons, in any state of inflation.',
+   'This clause has been left blank, like a birthday card five minutes before the party.',
+   'If you are reading clause 11, you have read more terms and conditions than anyone in history. A medal is in the post.',
+   FROM+' are hereby recognised as authorised birthday witnesses, with full powers to wish you well.'];
+  render(`<p class="kicker">Step 4 of 5</p><h1>Terms and conditions</h1>
+  <p>Please read all 12 clauses. We can tell if you scroll too fast (we cannot).</p>
+  <div class="terms" id="terms" tabindex="0"><b>BIRTHDAY SERVICE AGREEMENT</b><ol>${clauses.map(c=>`<li>${c}</li>`).join('')}</ol><p style="text-align:center">— END OF TERMS —</p></div>
+  <label class="check"><input type="checkbox" id="cb" disabled><span>I have read the terms, or at least scrolled past them respectfully.</span></label>
+  <div class="notice" id="note">Scroll to the end of the terms to unlock the checkbox.</div>
+  <div class="dodge" id="dodge"><button id="agree" disabled>I agree</button></div>`);
+  const box=$('#terms'),cb=$('#cb'),btn=$('#agree');
+  const check=()=>{if(cb.disabled&&box.scrollTop+box.clientHeight>=box.scrollHeight-10){cb.disabled=false;note('Checkbox unlocked. Tick it to continue.')}};
+  box.onscroll=check;later(check,300);
+  cb.onchange=()=>{btn.disabled=!cb.checked;if(cb.checked)note('Thank you. Now press "I agree".')};
+  btn.addEventListener('pointerdown',e=>{
+    if(dodges<2){e.preventDefault();dodges++;ignoreUntil=Date.now()+500;tone(300,.1,'square');
+      const w=$('#dodge'),mx=Math.max(0,w.clientWidth-btn.offsetWidth),my=w.clientHeight-btn.offsetHeight;
+      btn.style.transform=dodges===1?`translate(${mx}px,${my}px)`:`translate(${mx/2}px,0px)`;
+      note(dodges===1?'The button is feeling shy about commitment. Try again.':'Please do not chase the button. It will hold still now. Promise.','bad')}
+  });
+  btn.onclick=()=>{if(Date.now()<ignoreUntil)return;tone(660);stepProcessing()};
+}
+
+/* ---------- Step 5: processing ---------- */
+function stepProcessing(){
+  setStep(4);let p=0,press=0,stuck=false,done=false,last=performance.now();
+  const msgs=['Locating cake…','Counting candles…','Recounting candles…','Folding party hats…','Tuning the kazoo…','Briefing the confetti…','Warming up the singers…','Inflating balloons…'];
+  render(`<p class="kicker">Step 5 of 5</p><h1>Processing your birthday</h1>
+  <p>Please do not close this window, blink excessively, or age further.</p>
+  <div class="bar"><i id="fill"></i></div><div class="pct"><span id="pct">0</span>% <span class="muted" id="what"></span></div>
+  <div id="pumpzone"></div><div class="notice" id="note">Processing…</div>`);
+  const fill=$('#fill'),pct=$('#pct'),what=$('#what');
+  function loop(t){
+    const dt=Math.min((t-last)/1000,.05);last=t;
+    if(!stuck){p=Math.min(99,p+dt*(p<80?17:5));fill.style.width=p+'%';pct.textContent=Math.floor(p);what.textContent=msgs[Math.min(msgs.length-1,Math.floor(p/100*msgs.length))];
+      if(p>=99){stuck=true;later(showPump,1800)}}
+    else if(!done&&$('#balloon')){press=Math.max(0,press-dt*7);draw()}
+    if(!done)raf=requestAnimationFrame(loop);
+  }
+  function draw(){const b=$('#balloon');if(b)b.style.transform=`scale(${1+press/32})`}
+  function showPump(){
+    note('Stuck at 99%. The final balloon is refusing to inflate. Manual assistance required.','bad');tone(170,.25,'sawtooth');
+    $('#pumpzone').innerHTML=`<div class="pump"><div class="balloonwrap"><div class="balloon" id="balloon">🎈</div></div><button id="pump">Pump the balloon</button></div>`;
+    $('#pump').onclick=()=>{
+      if(done)return;press+=8;tone(260+press*5,.06,'triangle');draw();
+      if(press>=100){pop()}
+      else if(press>75)note('Do not stop. It can sense hesitation.');
+      else if(press>45)note('The balloon is considering it. Keep pumping.');
+      else note('Good. Pump faster, it leaks.');
+    };
+  }
+  function pop(){
+    done=true;cancelAnimationFrame(raf);$('#balloon').textContent='💥';tone(90,.3,'square',.09);
+    fill.style.width='100%';pct.textContent='100';what.textContent='Complete.';note('Balloon inflated beyond specification. Processing complete.','ok');
+    later(approved,1100);
+  }
+  raf=requestAnimationFrame(loop);
+}
+
+/* ---------- Approved ---------- */
+function approved(){
+  setStep(5);
+  const today=new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  render(`<div class="licence"><div class="stamp">BIRTHDAY<br>APPROVED</div>
+  <p class="kicker">Department of Birthdays</p><h1>Official Birthday Licence</h1>
+  <p>This certifies that</p><div class="name">${NAME}</div>
+  <p>has completed all verification and is hereby authorised to have a birthday, effective immediately.</p>
+  <ul><li>🎂 Cake: unlimited, calories void</li><li>🕯️ Wishes: one (1), non-transferable</li><li>🧾 Declared age: ${declaredAge||'classified'} (unverified)</li><li>🤖 Robot status: probably not</li><li>📅 Issued: ${today}</li></ul></div>
+  <div class="msg"><b>Happy Birthday, ${NAME}! 🎉</b><p>The paperwork is finally done, so go and enjoy your day. Wishing you a brilliant year ahead, with plenty of cake, laughter and good things.</p><div class="sig">${FROM} are wishing you a very happy birthday.</div></div>
+  <div class="row" style="justify-content:center"><button id="song">🎵 Play the song again</button><button class="alt" id="print">Print licence</button><button class="alt" id="again">Start over</button></div>`);
+  $('#print').onclick=()=>window.print();
+  $('#song').onclick=song;
+  $('#again').onclick=()=>{stopSong();stopConfetti();intro()};
+  later(()=>tone(120,.25,'square',.09),380);
+  later(song,950);
+  confetti();
+}
+
+/* ---------- Confetti ---------- */
+const cv=document.getElementById('confetti'),cx=cv.getContext('2d');let bits=[],craf=0,cEnd=0;
+function stopConfetti(){cancelAnimationFrame(craf);bits=[];cx.clearRect(0,0,cv.width,cv.height)}
+function confetti(){
+  stopConfetti();cv.width=innerWidth;cv.height=innerHeight;cEnd=performance.now()+9000;
+  const cols=['#c9a227','#1b365d','#d94f70','#3fa7a0','#f2b84b','#8a5fd3'];
+  const add=n=>{for(let i=0;i<n;i++)bits.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,w:6+Math.random()*7,h:8+Math.random()*9,vx:(Math.random()-.5)*90,vy:110+Math.random()*190,r:Math.random()*6,vr:(Math.random()-.5)*9,c:pick(cols)})};
+  add(170);let last=performance.now();
+  (function loop(t){
+    const dt=Math.min((t-last)/1000,.05);last=t;cx.clearRect(0,0,cv.width,cv.height);
+    if(t<cEnd&&bits.length<170)add(3);
+    bits=bits.filter(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.r+=b.vr*dt;if(b.y>cv.height+30)return false;cx.save();cx.translate(b.x,b.y);cx.rotate(b.r);cx.fillStyle=b.c;cx.fillRect(-b.w/2,-b.h/2,b.w,b.h*Math.abs(Math.cos(b.r*1.3)));cx.restore();return true});
+    if(bits.length)craf=requestAnimationFrame(loop);else cx.clearRect(0,0,cv.width,cv.height);
+  })(last);
+}
+
+intro();
+})();
+</script>
+</body>
+</html>
