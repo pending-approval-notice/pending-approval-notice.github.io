@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b365d">
 <title>Department of Birthdays — Official Portal</title>
 <style>
 :root{color-scheme:light;--navy:#1b365d;--navy2:#274b7d;--gold:#c9a227;--paper:#f3efe4;--ink:#22262e;--muted:#5d6675;--line:#d5d0c2;--ok:#1f7a4d;--bad:#a8322d}
@@ -63,7 +64,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--navy);margin:8px 0}
 .spin{width:30px;height:30px;border:4px solid #cfd6e0;border-top-color:var(--navy);border-radius:50%;animation:sp .8s linear infinite;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* cookies */
-.sky{position:relative;height:350px;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:linear-gradient(#eef4fb,#fff);margin-top:12px;touch-action:none;user-select:none;-webkit-user-select:none}
+.sky{position:relative;height:350px;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:linear-gradient(#eef4fb,#fff);margin-top:12px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .drop{position:absolute;top:0;left:0;width:56px;height:56px;font-size:42px;line-height:56px;text-align:center;cursor:pointer;will-change:transform}
 .crumb{position:absolute;font-size:13px;font-weight:700;color:var(--ok);pointer-events:none;animation:up .7s ease-out forwards}
 @keyframes up{to{transform:translateY(-34px);opacity:0}}
@@ -96,6 +97,23 @@ input[type=range]{width:100%;height:44px;accent-color:var(--navy);margin:8px 0}
 .msg b{font-size:22px;font-family:Georgia,serif;color:#8a2b5c}
 .sig{margin-top:10px;font-weight:700;color:#8a2b5c}
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
+/* phones */
+button,.tile,.drop{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+body{padding-bottom:env(safe-area-inset-bottom)}
+@media (max-width:520px){
+  .topbar{font-size:10.5px;padding:4px 10px}
+  header{padding:10px 12px}.head{gap:10px}.crest{width:44px;height:44px;font-size:22px}.sub{font-size:10px;letter-spacing:.1em}
+  main{padding:10px}.card{padding:16px 14px}
+  .steps{gap:4px;margin-bottom:10px}.steps li{font-size:10px}
+  .agenum{font-size:64px}
+  .row{gap:8px}.row button{flex:1 1 auto}
+  .sky{height:min(350px,52vh)}
+  .terms{height:min(230px,36vh)}
+  .balloonwrap{height:160px}
+  .licence{padding:84px 12px 16px}.licence ul{font-size:14px}
+  .msg{font-size:16px;padding:14px}
+  .fine{margin:14px 0 20px}
+}
 @media print{.topbar,header,.steps,.row,.fine,#confetti{display:none}body{background:#fff}.card{border:0;box-shadow:none}}
 @media (prefers-reduced-motion:reduce){.card,.stamp{animation:none}}
 </style>
@@ -127,16 +145,32 @@ function tone(f,d=.12,type='sine',v=.05){try{ac=ac||new (window.AudioContext||wi
 
 /* Chiptune "Happy Birthday" (square-wave lead, triangle bass) */
 let songNodes=[];
-function stopSong(){songNodes.forEach(o=>{try{o.stop()}catch(e){}});songNodes=[]}
+function stopSong(){songNodes.forEach(o=>{try{o.stop()}catch(e){}});songNodes=[];try{if(songEl)songEl.pause()}catch(e){}}
+/* Phone-safe version: the tune is rendered to a WAV and played through an <audio> element,
+   started inside a tap (so mobile browsers allow it; it also ignores the iPhone silent switch).
+   The file begins with LEAD seconds of silence so it can start on the last pump and land after the stamp. */
+const LEAD=2,BEAT=.42;
+const NOTE={G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99};
+const MEL=[['G4',.75],['G4',.25],['A4',1],['G4',1],['C5',1],['B4',2],['G4',.75],['G4',.25],['A4',1],['G4',1],['D5',1],['C5',2],['G4',.75],['G4',.25],['G5',1],['E5',1],['C5',1],['B4',1],['A4',1],['F5',.75],['F5',.25],['E5',1],['C5',1],['D5',1],['C5',3]];
+const BASS=[130.81,196,196,130.81,130.81,174.61,130.81,130.81];
+let songEl=null,songOK=false;
+function buildSong(){if(songEl)return;try{
+  const sr=22050,n=Math.ceil((LEAD+25*BEAT+.4)*sr),buf=new Float32Array(n);
+  const add=(f,t,d,sq,v)=>{const s=Math.floor(t*sr),e=Math.min(n,Math.floor((t+d)*sr));for(let i=s;i<e;i++){const tt=(i-s)/sr,ph=(tt*f)%1,w=sq?(ph<.5?1:-1):4*Math.abs(ph-.5)-1,env=tt<.006?tt/.006:tt<d*.72?1:Math.max(0,1-(tt-d*.72)/(d*.24));buf[i]+=w*v*env}};
+  let t=LEAD;MEL.forEach(([k,d])=>{add(NOTE[k],t,d*BEAT,true,.2);t+=d*BEAT});
+  BASS.forEach((f,i)=>{const s=LEAD+(1+i*3)*BEAT;add(f,s,(i===6?1.9:2.8)*BEAT,false,.3);if(i===6)add(196,s+2*BEAT,.9*BEAT,false,.3)});
+  const dv=new DataView(new ArrayBuffer(44+n*2)),W=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i))};
+  W(0,'RIFF');dv.setUint32(4,36+n*2,true);W(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);W(36,'data');dv.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++)dv.setInt16(44+i*2,Math.max(-1,Math.min(1,buf[i]))*32767,true);
+  songEl=new Audio(URL.createObjectURL(new Blob([dv],{type:'audio/wav'})));songEl.preload='auto';songEl.load();
+}catch(e){songEl=null}}
+function playSong(from){songOK=false;if(!songEl)return Promise.reject();try{songEl.pause();songEl.currentTime=from}catch(e){}const p=songEl.play();return (p&&p.then?p:Promise.resolve()).then(()=>{songOK=true})}
 function chip(f,t,d,type,v){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.012);g.gain.setValueAtTime(v,t+d*.72);g.gain.linearRampToValueAtTime(.0001,t+d*.96);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);songNodes.push(o)}
 function song(){try{
   ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();stopSong();
-  const N={G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99};
-  const mel=[['G4',.75],['G4',.25],['A4',1],['G4',1],['C5',1],['B4',2],['G4',.75],['G4',.25],['A4',1],['G4',1],['D5',1],['C5',2],['G4',.75],['G4',.25],['G5',1],['E5',1],['C5',1],['B4',1],['A4',1],['F5',.75],['F5',.25],['E5',1],['C5',1],['D5',1],['C5',3]];
-  const B=.42,t0=ac.currentTime+.08;let t=t0;
-  mel.forEach(([n,d])=>{chip(N[n],t,d*B,'square',.045);chip(N[n]*2,t,Math.min(d*B,.09),'square',.012);t+=d*B});
-  const bass=[130.81,196,196,130.81,130.81,174.61,130.81,130.81];
-  bass.forEach((f,i)=>{const s=t0+(1+i*3)*B;chip(f,s,(i===6?1.9:2.8)*B,'triangle',.09);if(i===6)chip(196,s+2*B,.9*B,'triangle',.09)});
+  const N=NOTE,B=BEAT,t0=ac.currentTime+.08;let t=t0;
+  MEL.forEach(([n,d])=>{chip(N[n],t,d*B,'square',.09);chip(N[n]*2,t,Math.min(d*B,.09),'square',.02);t+=d*B});
+  BASS.forEach((f,i)=>{const s=t0+(1+i*3)*B;chip(f,s,(i===6?1.9:2.8)*B,'triangle',.09);if(i===6)chip(196,s+2*B,.9*B,'triangle',.09)});
 }catch(e){}}
 
 function setStep(n){
@@ -345,7 +379,7 @@ function stepTerms(){
 
 /* ---------- Step 5: processing ---------- */
 function stepProcessing(){
-  setStep(4);let p=0,press=0,stuck=false,done=false,last=performance.now();
+  setStep(4);buildSong();let p=0,press=0,stuck=false,done=false,last=performance.now();
   const msgs=['Locating cake…','Counting candles…','Recounting candles…','Folding party hats…','Tuning the kazoo…','Briefing the confetti…','Warming up the singers…','Inflating balloons…'];
   render(`<p class="kicker">Step 5 of 5</p><h1>Processing your birthday</h1>
   <p>Please do not close this window, blink excessively, or age further.</p>
@@ -373,6 +407,7 @@ function stepProcessing(){
   }
   function pop(){
     done=true;cancelAnimationFrame(raf);$('#balloon').textContent='💥';tone(90,.3,'square',.09);
+    playSong(0).catch(()=>{});
     fill.style.width='100%';pct.textContent='100';what.textContent='Complete.';note('Balloon inflated beyond specification. Processing complete.','ok');
     later(approved,1100);
   }
@@ -391,10 +426,10 @@ function approved(){
   <div class="msg"><b>Happy Birthday, ${NAME}! 🎉</b><p>The paperwork is finally done, so go and enjoy your day. Wishing you a brilliant year ahead, with plenty of cake, laughter and good things.</p><div class="sig">${FROM} are wishing you a very happy birthday.</div></div>
   <div class="row" style="justify-content:center"><button id="song">🎵 Play the song again</button><button class="alt" id="print">Print licence</button><button class="alt" id="again">Start over</button></div>`);
   $('#print').onclick=()=>window.print();
-  $('#song').onclick=song;
+  $('#song').onclick=()=>{stopSong();playSong(LEAD).catch(song)};
   $('#again').onclick=()=>{stopSong();stopConfetti();intro()};
   later(()=>tone(120,.25,'square',.09),380);
-  later(song,950);
+  later(()=>{if(!songOK)song()},950);
   confetti();
 }
 
